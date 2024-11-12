@@ -4,7 +4,6 @@ import GlobalOffensive from 'globaloffensive';
 
 let user = new SteamUser();
 let csgo = new GlobalOffensive(user);
-let SuccessfullyLoggedIn = false;
 
 const questions = [
     {
@@ -28,8 +27,7 @@ function login(accountName, password) {
     
     user.on('loggedOn', () => {
         console.log('Successfully logged into Steam');
-        SuccessfullyLoggedIn = true;
-        startCSGOActions(); // run rest of program after successful login
+        startCSActions(); // run rest of program after successful login
     });
 
     user.on('error', (err) => {
@@ -55,9 +53,14 @@ function promptForLogin() {
     });
 }
 
-function startCSGOActions() {
+function startCSActions() {
     //runs after successful login
+    csgo.on('connectedToGC', () => {
+        console.log('Connected to CS2 Game Coordinator');
+        csgo.setPersona(SteamUser.PersonaState.Online); // set your status to online
+    });
 
+    user.gamesPlayed([730]); // start CS2 (App ID 730)
 }
 
 
