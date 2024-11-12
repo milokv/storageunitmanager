@@ -21,28 +21,45 @@ const questions = [
     }
 ];
 
-inquirer.prompt(questions).then(answers => {
-    console.log(`Name and password entered successfully.`);
-    console.log('Logging in...');
-
-    // Set up event listeners
+// function for steam log-in process
+function login(accountName, password) {
+    console.log('Attempting to log in...');
+    console.log('NOTE: Manual input of Steam Guard Code is needed, approving the login from the Steam App will not work.');
+    
     user.on('loggedOn', () => {
         console.log('Successfully logged into Steam');
         SuccessfullyLoggedIn = true;
+        startCSGOActions(); // run rest of program after successful login
     });
 
     user.on('error', (err) => {
-        if (err.eresult == 5) {
-            console.log('Invalid Username or Password')
+        if (err.eresult === 5) {
+            console.log('Invalid Username or Password. Please try again.');
+            promptForLogin(); // retry login process if password or username is incorrect
         } else {
             console.error('Error logging into Steam:', err);
         }
     });
 
-    // Attempt to log in
     user.logOn({
-        accountName: answers.accountName,
-        password: answers.password,
+        accountName,
+        password,
         machineName: "Storage Unit Manager",
     });
-});
+}
+
+// function to prompt for steam login
+function promptForLogin() {
+    inquirer.prompt(questions).then(answers => {
+        login(answers.accountName, answers.password);
+    });
+}
+
+function startCSGOActions() {
+    //runs after successful login
+
+}
+
+
+
+promptForLogin();
