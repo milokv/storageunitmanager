@@ -57,7 +57,7 @@ function startCSActions() {
     //runs after successful login
     csgo.on('connectedToGC', () => {
         console.log('Connected to CS2 Game Coordinator');
-        csgo.setPersona(SteamUser.PersonaState.Online); // set your status to online
+        console.log(csgo.inventory);
     });
 
     user.gamesPlayed([730]); // start CS2 (App ID 730)
