@@ -1,9 +1,18 @@
 import inquirer from 'inquirer';
 import SteamUser from 'steam-user';
 import GlobalOffensive from 'globaloffensive';
+import fs from 'fs';
 
 let user = new SteamUser();
 let csgo = new GlobalOffensive(user);
+
+// load json files with weapon + skin ids
+const skinsData = JSON.parse(fs.readFileSync('skinlist.json', 'utf8'));
+const weaponsData = JSON.parse(fs.readFileSync('weaponlist.json', 'utf8'));
+
+// reverse json format for easy lookup (cant be bothered to reverse everything rn)
+const skins = Object.fromEntries(Object.entries(skinsData).map(([name, index]) => [index, name]));
+const weapons = Object.fromEntries(Object.entries(weaponsData).map(([name, index]) => [index, name]));
 
 const questions = [
     {
@@ -57,12 +66,24 @@ function startCSActions() {
     //runs after successful login
     csgo.on('connectedToGC', () => {
         console.log('Connected to CS2 Game Coordinator');
-        console.log(csgo.inventory);
+        convertInventory(csgo.inventory);
     });
 
     user.gamesPlayed([730]); // start CS2 (App ID 730)
 }
 
+// function to convert inventory data to readable skin format.
+function convertInventory(inventory) {
+    inventory.forEach(item => {
+        const weaponName = weapons[item.def_index] || 'Unknown Weapon';
+        const skinName = skins[item.paint_index] || 'Unknown Skin';
+
+        console.log(`ID: ${item.id}`);
+        console.log(`Weapon Name: ${weaponName}`);
+        console.log(`Skin Name: ${skinName}`);
+        console.log('---');
+    });
+}
 
 
 promptForLogin();
